@@ -32,10 +32,10 @@ BLOCKSCOUT_MAX_CPU = 4000
 BLOCKSCOUT_MIN_MEMORY = 4096
 BLOCKSCOUT_MAX_MEMORY = 8192
 
-BLOCKSCOUT_VERIF_MIN_CPU = 10
-BLOCKSCOUT_VERIF_MAX_CPU = 1000
-BLOCKSCOUT_VERIF_MIN_MEMORY = 10
-BLOCKSCOUT_VERIF_MAX_MEMORY = 1024
+BLOCKSCOUT_VERIF_MIN_CPU = 1000
+BLOCKSCOUT_VERIF_MAX_CPU = 4000
+BLOCKSCOUT_VERIF_MIN_MEMORY = 4096
+BLOCKSCOUT_VERIF_MAX_MEMORY = 8192
 
 USED_PORTS = {
     constants.HTTP_PORT_ID: shared_utils.new_port_spec(
@@ -216,7 +216,7 @@ def get_config_backend(
             "-c",
             'bin/blockscout eval "Elixir.Explorer.ReleaseTasks.create_and_migrate()" && bin/blockscout start',
         ],
-                env_vars={
+        env_vars={
             "ETHEREUM_JSONRPC_VARIANT": el_client_name if el_client_name != "reth" else "erigon",
             "ETHEREUM_JSONRPC_HTTP_URL": el_client_rpc_url,
             "ETHEREUM_JSONRPC_TRACE_URL": el_client_rpc_url,
@@ -284,7 +284,6 @@ def get_config_frontend(
             "NEXT_PUBLIC_HAS_BEACON_CHAIN": "true",
             "NEXT_PUBLIC_NETWORK_VERIFICATION_TYPE": "validation",
             "NEXT_PUBLIC_NETWORK_ICON": "https://ethpandaops.io/logo.png",
-            # "NEXT_PUBLIC_APP_HOST": "0.0.0.0",
             "NEXT_PUBLIC_APP_PROTOCOL": "http",
             "NEXT_PUBLIC_APP_HOST": "127.0.0.1",
             "NEXT_PUBLIC_APP_PORT": str(HTTP_PORT_NUMBER_FRONTEND),
