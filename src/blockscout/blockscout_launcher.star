@@ -26,12 +26,11 @@ def get_api_port(blockscout_service, port_publisher):
         return public_ports[0]  # First port for the API
     return blockscout_service.ports["http"].number
 
-def get_rpc_url(el_context, port_publisher, additional_service_index):
-    public_ports = shared_utils.get_public_ports_for_component(
-        "execution_clients", port_publisher, additional_service_index
-    )
-    rpc_port = public_ports[0]  # primeiro é sempre o RPC
-    return "http://127.0.0.1:{}/".format(rpc_port)
+def get_rpc_url(el_contexts):
+    if not el_contexts or len(el_contexts) == 0:
+        fail("Nenhum execution client encontrado em el_contexts")
+    el_context = el_contexts[0]
+    return "http://{}:{}/".format(el_context.ip_addr, el_context.rpc_port_num)
 
 
 def get_ws_url(el_context, port_publisher, additional_service_index):
