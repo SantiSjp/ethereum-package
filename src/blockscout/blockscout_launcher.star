@@ -26,6 +26,22 @@ def get_api_port(blockscout_service, port_publisher):
         return public_ports[0]  # First port for the API
     return blockscout_service.ports["http"].number
 
+def get_rpc_url(el_context, port_publisher, additional_service_index):
+    public_ports = shared_utils.get_public_ports_for_component(
+        "execution_clients", port_publisher, additional_service_index
+    )
+    rpc_port = public_ports[0]  # primeiro é sempre o RPC
+    return "http://127.0.0.1:{}/".format(rpc_port)
+
+
+def get_ws_url(el_context, port_publisher, additional_service_index):
+    public_ports = shared_utils.get_public_ports_for_component(
+        "execution_clients", port_publisher, additional_service_index
+    )
+    ws_port = public_ports[1]  # segundo é sempre o WS
+    return "ws://127.0.0.1:{}/".format(ws_port)
+
+
 
 BLOCKSCOUT_MIN_CPU = 1000
 BLOCKSCOUT_MAX_CPU = 4000
@@ -85,11 +101,10 @@ def launch_blockscout(
         image=shared_utils.docker_cache_image_calc(docker_cache_params, POSTGRES_IMAGE),
         tolerations=tolerations,
     )
-
+   
     el_context = el_contexts[0]
-    # Usa as portas PUBLICADAS no host em vez do ip_addr interno
-    el_client_rpc_url = "http://127.0.0.1:{}/".format(el_context.rpc_public_port_num)
-    el_client_ws_url = "ws://127.0.0.1:{}/".format(el_context.ws_public_port_num)
+    el_client_rpc_url = get_rpc_url(el_context, port_publisher, additional_service_index)
+    el_client_ws_url = get_ws_url(el_context, port_publisher, additional_service_index)
     el_client_name = el_context.client_name
 
     config_verif = get_config_verif(
