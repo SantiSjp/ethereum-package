@@ -32,10 +32,10 @@ BLOCKSCOUT_MAX_CPU = 4000
 BLOCKSCOUT_MIN_MEMORY = 4096
 BLOCKSCOUT_MAX_MEMORY = 8192
 
-BLOCKSCOUT_VERIF_MIN_CPU = 1000
-BLOCKSCOUT_VERIF_MAX_CPU = 4000
-BLOCKSCOUT_VERIF_MIN_MEMORY = 4096
-BLOCKSCOUT_VERIF_MAX_MEMORY = 8192
+BLOCKSCOUT_VERIF_MIN_CPU = 100
+BLOCKSCOUT_VERIF_MAX_CPU = 1000
+BLOCKSCOUT_VERIF_MIN_MEMORY = 256
+BLOCKSCOUT_VERIF_MAX_MEMORY = 1024
 
 USED_PORTS = {
     constants.HTTP_PORT_ID: shared_utils.new_port_spec(
@@ -87,9 +87,9 @@ def launch_blockscout(
     )
 
     el_context = el_contexts[0]
-    el_client_rpc_url = "http://{}:{}/".format(
-        el_context.ip_addr, el_context.rpc_port_num
-    )
+    # Usa as portas PUBLICADAS no host em vez do ip_addr interno
+    el_client_rpc_url = "http://127.0.0.1:{}/".format(el_context.rpc_public_port_num)
+    el_client_ws_url = "ws://127.0.0.1:{}/".format(el_context.ws_public_port_num)
     el_client_name = el_context.client_name
 
     config_verif = get_config_verif(
@@ -109,6 +109,7 @@ def launch_blockscout(
     config_backend = get_config_backend(
         postgres_output,
         el_client_rpc_url,
+        el_client_ws_url,
         verif_url,
         el_client_name,
         global_node_selectors,
@@ -179,6 +180,7 @@ def get_config_verif(
 def get_config_backend(
     postgres_output,
     el_client_rpc_url,
+    el_client_ws_url,
     verif_url,
     el_client_name,
     node_selectors,
@@ -220,7 +222,7 @@ def get_config_backend(
             "ETHEREUM_JSONRPC_VARIANT": el_client_name if el_client_name != "reth" else "erigon",
             "ETHEREUM_JSONRPC_HTTP_URL": el_client_rpc_url,
             "ETHEREUM_JSONRPC_TRACE_URL": el_client_rpc_url,
-            "ETHEREUM_JSONRPC_WS_URL": el_client_rpc_url.replace("http", "ws"),
+            "ETHEREUM_JSONRPC_WS_URL": el_client_ws_url,
             "DATABASE_URL": database_url,
             "COIN": "ETH",
             "MICROSERVICE_SC_VERIFIER_ENABLED": "true",
