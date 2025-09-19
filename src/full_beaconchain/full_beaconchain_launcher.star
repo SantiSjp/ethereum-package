@@ -434,4 +434,5 @@ def new_config_template_data(
         "DBPort": db_port,
         "RedisEndpoint": redis_url,
         "FrontendPort": frontend_port,
+        "PectraWithdrawalRequestContractAddress": "0x0000000000000000000000000000000000000000",
     }
