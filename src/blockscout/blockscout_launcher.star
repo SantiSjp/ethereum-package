@@ -26,20 +26,18 @@ def get_api_port(blockscout_service, port_publisher):
         return public_ports[0]  # First port for the API
     return blockscout_service.ports["http"].number
 
-def get_rpc_url(el_contexts):
-    if not el_contexts or len(el_contexts) == 0:
-        fail("Nenhum execution client encontrado em el_contexts")
-    el_context = el_contexts[0]
-    return "http://{}:{}/".format(el_context.ip_addr, el_context.rpc_port_num)
-
-
-def get_ws_url(el_context, port_publisher, additional_service_index):
-    public_ports = shared_utils.get_public_ports_for_component(
-        "execution_clients", port_publisher, additional_service_index
-    )
-    ws_port = public_ports[1]  # segundo é sempre o WS
-    return "ws://127.0.0.1:{}/".format(ws_port)
-
+def build_rpc_url(el_context, port_publisher, use_ws=False):
+    protocol = "ws" if use_ws else "http"
+    if port_publisher.additional_services_enabled:
+        public_ports = shared_utils.get_public_ports_for_component(
+            "execution_clients",
+            port_publisher,
+            0,
+        )
+        port_num = public_ports[0]
+    else:
+        port_num = el_context.rpc_port_num
+    return "{}://127.0.0.1:{}/".format(protocol, port_num)
 
 
 BLOCKSCOUT_MIN_CPU = 1000
@@ -102,8 +100,8 @@ def launch_blockscout(
     )
    
     el_context = el_contexts[0]
-    el_client_rpc_url = get_rpc_url(el_context, port_publisher, additional_service_index)
-    el_client_ws_url = get_ws_url(el_context, port_publisher, additional_service_index)
+    el_client_rpc_url = build_rpc_url(el_context, port_publisher, use_ws=False)
+    el_client_ws_url  = build_rpc_url(el_context, port_publisher, use_ws=True)
     el_client_name = el_context.client_name
 
     config_verif = get_config_verif(
